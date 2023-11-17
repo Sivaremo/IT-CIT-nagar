@@ -37,7 +37,7 @@ class Booking_API(APIView):
             end_time=serializer.validated_data.get('Ending_Time')
             data=serializer.validated_data.get('date')
          
-            booking=Booking.objects.filter(Booking_Room=room,date=data,Starting_Time=start_time,Ending_Time=end_time).first() or Booking.objects.filter(Booking_Room=room,date=data,Ending_Time=start_time).first()
+            booking=Booking.objects.filter(Booking_Room=room,date=data,Starting_Time=start_time,Ending_Time=end_time).first() or Booking.objects.filter(Booking_Room=room,date=data,Ending_Time=start_time).first() or Booking.objects.filter(Booking_Room=room,date=data,Ending_Time=end_time).first() or Booking.objects.filter(Booking_Room=room,date=data,Starting_Time=start_time).first()
 
             
             if not booking:
