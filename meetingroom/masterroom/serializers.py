@@ -13,7 +13,7 @@ class MasterRoom_Serializers_Input(serializers.Serializer):
 
 class Booking_Serializers(serializers.ModelSerializer):
     class Meta:
-        model=BookingDates
+        model=Booking
         fields='__all__'
 
 class BookingSearchSerializer(serializers.Serializer):

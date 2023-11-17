@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from datetime import datetime 
+from django.db.models import Q
+
 
 class MasterRoom_API(APIView):
     def post(self,request):
@@ -33,26 +35,26 @@ class Booking_API(APIView):
             Name=serializer.validated_data.get('Bookingname')
             start_time=serializer.validated_data.get('Starting_Time')
             end_time=serializer.validated_data.get('Ending_Time')
-            
-            booking=BookingDates.objects.filter(Booking_Room=room,Starting_Time=start_time).first()
+            data=serializer.validated_data.get('date')
+         
+            booking=Booking.objects.filter(Booking_Room=room,date=data,Starting_Time=start_time,Ending_Time=end_time).first() or Booking.objects.filter(Booking_Room=room,date=data,Ending_Time=start_time).first()
+
             
             if not booking:
-                if  BookingDates.objects.filter(Booking_Room=room,Ending_Time=start_time).first():
-                     return Response({'message':f'Mr/Mrs {Name} your meeting room is Not Available On that time in this Room'},status=status.HTTP_404_NOT_FOUND)
-                BookingDates.objects.create(**serializer.validated_data).save()
+                Booking.objects.create(**serializer.validated_data).save()
                 return Response({'message':f'Mr/Mrs {Name} your meeting room is Booked successfully by you'},status=status.HTTP_201_CREATED)
                     
             return Response({'message':f'Mr/Mrs {Name} your meeting room is Not Available On that time in this Room after {booking.Ending_Time.strftime("%H:%M")} is available'},status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def get(self,request):
-        queryset=BookingDates.objects.all()
+        queryset=Booking.objects.all()
         Booking_datas=Booking_Serializers(queryset,many=True)
         return Response(Booking_datas.data,status=status.HTTP_200_OK)
     
     def put(self,request):
         id=request.query_params.get('id')
-        queryset=BookingDates.objects.get(id=id)
+        queryset=Booking.objects.get(id=id)
         serializer=Booking_Serializers(queryset,data=request.data) 
         if serializer.is_valid():
             room=serializer.validated_data.get('Booking_Room')
@@ -60,9 +62,9 @@ class Booking_API(APIView):
             start_time=serializer.validated_data.get('Starting_Time')
             end_time=serializer.validated_data.get('Ending_Time')
             
-            booking=BookingDates.objects.filter(Booking_Room=room,Starting_Time=start_time,Ending_Time=end_time).first()
+            booking=Booking.objects.filter(Booking_Room=room,Starting_Time=start_time,Ending_Time=end_time).first()
             if not booking:
-                if  BookingDates.objects.filter(Booking_Room=room,Ending_Time=start_time).first():
+                if  Booking.objects.filter(Booking_Room=room,Ending_Time=start_time).first():
                      return Response({'message':f'Mr/Mrs {Name} your meeting room is Not Available On that time in this Room'},status=status.HTTP_404_NOT_FOUND)
                 serializer.save()
                 return Response({'message':f'Mr/Mrs {Name} your meeting room is Booking Updated successfully by you'},status=status.HTTP_201_CREATED)
@@ -72,7 +74,7 @@ class Booking_API(APIView):
     
     def delete(self,request):
         id=request.query_params.get('id')
-        queryset=BookingDates.objects.get(id=id)
+        queryset=Booking.objects.get(id=id)
         queryset.delete()
         return Response({'message':f'{queryset.Bookingname } meeting room is Deleted Sucessfully'},status=status.HTTP_200_OK)
 
@@ -92,7 +94,7 @@ class BookingSearchAPI(APIView):
             if end_time:
                 query_params['Ending_Time__lte'] = end_time
 
-            bookings = BookingDates.objects.filter(**query_params)
+            bookings = Booking.objects.filter(**query_params)
 
           
             serializer = Booking_Serializers(bookings, many=True)
