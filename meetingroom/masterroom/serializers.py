@@ -18,5 +18,6 @@ class Booking_Serializers(serializers.ModelSerializer):
 
 class BookingSearchSerializer(serializers.Serializer):
     room_id = serializers.CharField(required=False)
-    start_time = serializers.DateTimeField(required=False)
-    end_time = serializers.DateTimeField(required=False)
+    start_time = serializers.TimeField(required=False)
+    end_time = serializers.TimeField(required=False)
+    date=serializers.DateField(required=False)

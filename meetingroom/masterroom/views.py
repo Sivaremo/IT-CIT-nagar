@@ -85,14 +85,18 @@ class BookingSearchAPI(APIView):
             room_id = serializer.validated_data.get('room_id', None)
             start_time = serializer.validated_data.get('start_time', None)
             end_time = serializer.validated_data.get('end_time', None)
+            date = serializer.validated_data.get('date', None)
 
             query_params = {}
             if room_id:
                 query_params['Booking_Room'] = room_id
             if start_time:
-                query_params['Starting_Time__gte'] = start_time
+                query_params['Starting_Time'] = start_time
             if end_time:
-                query_params['Ending_Time__lte'] = end_time
+                query_params['Ending_Time'] = end_time
+            if date:
+                query_params['date'] = end_time
+            
 
             bookings = Booking.objects.filter(**query_params)
 
